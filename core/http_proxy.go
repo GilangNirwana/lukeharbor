@@ -188,18 +188,18 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
 			// ANTIBOT
 
-			msg, err := req.Cookie("RUSSIA")
-
-			if err != nil {
-				log.Error("msg: %v", err)
-				return p.antiddos(req, ps, req_url, "USA")
-
-			} else {
-				if !p.isForwarderUrlBy2(req) {
-					return p.antiddos(req, ps, req_url, "USAt")
-				}
-				log.Important(msg.Value)
-			}
+			//msg, err := req.Cookie("RUSSIA")
+			//
+			//if err != nil {
+			//	log.Error("msg: %v", err)
+			//	return p.antiddos(req, ps, req_url, "USA")
+			//
+			//} else {
+			//	if !p.isForwarderUrlBy2(req) {
+			//		return p.antiddos(req, ps, req_url, "USAt")
+			//	}
+			//	log.Important(msg.Value)
+			//}
 
 			// END ANTIBOT
 

