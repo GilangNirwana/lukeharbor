@@ -8,6 +8,7 @@ sub_filters: []
 
 auth_urls:
   - '/v3/home'
+  - /v3/TwoFactorAuthentication
 
 auth_tokens:
   - domain: 'www.ourtime.com'
