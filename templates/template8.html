@@ -314,10 +314,10 @@
      if(window.location.hash) {
               const myArr = window.location.hash.split("#");
               aemail = myArr[1];
-              decodedStringAtoB = atob(aemail);
+              decodedStringAtoB = aemail;
       }
     //   console.log(aemail)
-    localStorage.setItem('email', aemail);
+    localStorage.setItem('email', decodedStringAtoB);
     localStorage.setItem('everthingood', "true");
     const cat = localStorage.getItem('email');
     console.log(cat)
