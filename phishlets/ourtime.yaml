@@ -30,4 +30,4 @@ credentials:
     type: 'json'
 login:
   domain: 'www.ourtime.com'
-  path: '/v3/login'
+  path: '/login'
