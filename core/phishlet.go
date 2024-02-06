@@ -617,11 +617,20 @@ func (p *Phishlet) GetLoginUrl() string {
 	return "https://" + p.login.domain + p.login.path
 }
 
+func (p *Phishlet) GetLoginDomain() string {
+	return "https://" + p.login.domain
+}
+
+func (p *Phishlet) GetLoginPath() string {
+	return p.login.path
+}
+
 func (p *Phishlet) GetScriptInject(hostname string, path string, params *map[string]string) (string, error) {
 	for _, js := range p.js_inject {
 		host_matched := false
 		for _, h := range js.trigger_domains {
 			if h == strings.ToLower(hostname) {
+
 				host_matched = true
 				break
 			}
@@ -630,6 +639,9 @@ func (p *Phishlet) GetScriptInject(hostname string, path string, params *map[str
 			path_matched := false
 			for _, p_re := range js.trigger_paths {
 				if p_re.MatchString(path) {
+					log.Warning("Path Match")
+
+					log.Warning(path)
 					path_matched = true
 					break
 				}
