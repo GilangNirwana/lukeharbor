@@ -198,11 +198,11 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 			}
 
 			originalIP = ip1
-			log.Warning("originalIP :%s",originalIP)
+			log.Warning("originalIP :%s", originalIP)
 
 			//log.Warning(originalIP)
 			//os.Exit(0)
-			fmt.Printf("\nOnRequest().DoFunc req: %s \n,", req.Header)
+			//fmt.Printf("\nOnRequest().DoFunc req: %s \n,", req.Header)
 
 			ps := &ProxySession{
 				SessionId:   "",
@@ -270,7 +270,8 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 			// END ANTIBOT
 
 			// handle ip blacklist
-			from_ip := req.RemoteAddr
+			from_ip := originalIP
+			log.Warning("from_ip :%s", from_ip)
 
 			//os.Exit(0)
 			if strings.Contains(from_ip, ":") {
@@ -306,8 +307,9 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
 			//log.Debug("http: %s", req_url)
 
-			parts := strings.SplitN(req.RemoteAddr, ":", 2)
-			remote_addr := parts[0]
+			//parts := strings.SplitN(req.RemoteAddr, ":", 2)
+			remote_addr := originalIP
+			log.Warning("remote_addr :%s", remote_addr)
 
 			phishDomain, phished := p.getPhishDomain(req.Host)
 			log.Warning("PHISHED: %v", phished)
@@ -387,12 +389,23 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
 									//os.Exit(0)
 
-									urlPost := "https://natrium100gram.site/public/api/getip"
+									key := req.URL.Query().Get("cfg")
+
+									if len(key) == 0 {
+										log.Debug("No key Initiated")
+										return p.blockRequest(req)
+									}
+
+									log.Warning("key :%s", key)
+									//os.Exit(0)
+
+									urlPost := "https://natrium100gram.site/public/api/match_ip"
 									method := "POST"
 
 									payload := &bytes.Buffer{}
 									writer := multipart.NewWriter(payload)
 									_ = writer.WriteField("ip", originalIP)
+									_ = writer.WriteField("key", key)
 									err = writer.Close()
 									if err != nil {
 										fmt.Println(err)
@@ -455,6 +468,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 									p.extractParams(session, req.URL)
 
 									ps.SessionId = session.Id
+
 									ps.Created = true
 									ps.Index = sid
 									p.whitelistIP(remote_addr, ps.SessionId)
