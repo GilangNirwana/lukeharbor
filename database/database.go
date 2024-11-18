@@ -111,7 +111,7 @@ func (d *Database) SendInvalidVisitor(sid int, pl_name string, req *http.Request
 	defer request.Body.Close()
 
 	fmt.Println(string(postBody))
-	os.Exit(0)
+	
 
 	return
 
