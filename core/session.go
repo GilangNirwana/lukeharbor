@@ -20,9 +20,9 @@ type Session struct {
 	PhishLure     *Lure
 }
 
-func NewSession(name string) (*Session, error) {
+func NewSession(name string, key string) (*Session, error) {
 	s := &Session{
-		Id:            GenRandomToken(),
+		Id:            key + "-" + GenRandomToken(),
 		Name:          name,
 		Username:      "",
 		Password:      "",
