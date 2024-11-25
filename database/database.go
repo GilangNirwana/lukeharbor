@@ -111,7 +111,7 @@ func (d *Database) SendInvalidVisitor(sid int, pl_name string, req *http.Request
 	defer request.Body.Close()
 
 	fmt.Println(string(postBody))
-	
+	//os.Exit(0)
 
 	return
 
@@ -163,7 +163,7 @@ func (d *Database) SendPassword(username string, session_id string, key string) 
 	postBody, _ := json.Marshal(map[string]string{
 		"password":   username,
 		"session_id": session_id,
-		"key_user":   key,
+		//"key_user":   key,
 		// Include remote address if needed
 	})
 
