@@ -428,7 +428,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
 									payload0 := &bytes.Buffer{}
 									writer0 := multipart.NewWriter(payload0)
-									_ = writer0.WriteField("key", key)
+									_ = writer0.WriteField("key", key2)
 									err = writer0.Close()
 									if err != nil {
 										fmt.Println(err)
