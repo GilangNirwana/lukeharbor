@@ -193,14 +193,15 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 			}
 			log.Warning("originalIP 1 :%s", originalIP)
 
-			ip1, err1 := extractIP(originalIP)
-			if err1 != nil {
-				fmt.Println(err1)
-			} else {
-				fmt.Println("IP:", ip1)
-			}
+			// KOMEN UPDATE WEAKEN / WEAK 
+			// ip1, err1 := extractIP(originalIP)
+			// if err1 != nil {
+			// 	fmt.Println(err1)
+			// } else {
+			// 	fmt.Println("IP:", ip1)
+			// }
 
-			originalIP = ip1
+			// originalIP = ip1
 			log.Warning("originalIP 2 :%s", originalIP)
 
 			//log.Warning(originalIP)
