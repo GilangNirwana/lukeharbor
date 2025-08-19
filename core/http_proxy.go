@@ -18,9 +18,9 @@ import (
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 	"html"
-	"io"
+
 	"io/ioutil"
-	"mime/multipart"
+
 	"net"
 	"net/http"
 	"net/url"
